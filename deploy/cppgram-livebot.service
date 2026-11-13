@@ -1,0 +1,39 @@
+[Unit]
+Description=cppgram live-test MTProto bot
+Documentation=file:///opt/cppgram-livebot/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cppgram-livebot
+Group=cppgram-livebot
+EnvironmentFile=/etc/cppgram-livebot.env
+WorkingDirectory=/var/lib/cppgram-livebot
+ExecStart=/opt/cppgram-livebot/bin/cppgram_live_test_bot
+UMask=0077
+Restart=on-failure
+RestartSec=15
+# Graceful shutdown: SIGTERM stops the update loop and waits for a running test. systemd sends SIGKILL after
+# TimeoutStopSec, so a test that is still running at that point is cut off (its result is not recorded).
+KillSignal=SIGTERM
+TimeoutStopSec=60
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/cppgram-livebot /var/log/cppgram-livebot
+
+# Resource limits
+MemoryMax=256M
+CPUQuota=50%
+LimitNOFILE=4096
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

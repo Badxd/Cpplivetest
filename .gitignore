@@ -1,0 +1,14 @@
+build/
+*.session
+*.log
+*.jsonl
+.env
+
+*.env
+.env.*
+.env.bak
+*.session-journal
+__pycache__/
+*.pyc
+bot_workspace/
+*.bak
