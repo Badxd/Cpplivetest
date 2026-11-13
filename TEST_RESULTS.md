@@ -9,9 +9,9 @@ endpoint or environment). SKIP = not run in this context. NOT RUN = not executed
 |---|---|---|---|
 | Bot build, library linked prebuilt from the unmodified attached tree | GCC 13.3.0, Release, C++20 | `CPPGRAM_PREBUILT_DIR=<lib> ./build.sh` | PASS, 0 warnings |
 | Bot build and unit tests | Clang 18.1.3, Release, C++20 (linked against the GCC-built library) | `CXX=clang++ CC=clang ./build.sh` | PASS, 0 warnings |
-| Offline unit tests | GCC Release | `ctest` / `livebot_unit_tests` | PASS: 132 of 132 checks, 0 failures |
-| Offline unit tests under ASan + UBSan | GCC 13.3.0, Debug, `-fsanitize=address,undefined` | `livebot_unit_tests` | PASS: 132 of 132, no sanitizer reports |
-| Offline unit tests under TSan | GCC 13.3.0, Debug, `-fsanitize=thread` | `livebot_unit_tests` | PASS: 132 of 132, no sanitizer reports |
+| Offline unit tests | GCC Release | `ctest` / `livebot_unit_tests` | PASS: 136 of 136 checks, 0 failures |
+| Offline unit tests under ASan + UBSan | GCC 13.3.0, Debug, `-fsanitize=address,undefined` | `livebot_unit_tests` | PASS: 136 of 136, no sanitizer reports |
+| Offline unit tests under TSan | GCC 13.3.0, Debug, `-fsanitize=thread` | `livebot_unit_tests` | PASS: 136 of 136, no sanitizer reports |
 | Config error path | GCC Release | run with empty environment | PASS: exit 2, message names `TG_API_ID` only |
 | Startup with fake credentials (no network) | GCC Release | run with well-formed fake values | PASS: exit 1 after the library's connect timeout. Log contains the token and the hash 0 times |
 | Env checker | bash | `livebotctl.sh check-env` on placeholder, bad-mode and complete files | PASS: rejects placeholders and mode 644, accepts a complete mode-600 file. Values are never printed |

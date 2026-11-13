@@ -23,3 +23,6 @@ evidence used. None of these are fixed here.
    (up to 5 times) when `run()` throws.
 8. **MTProxy.** Only plain (16-byte) and dd (17-byte) secrets are accepted. Fake-TLS (`ee`) secrets are rejected
    by the library, and the bot checks this before any network use.
+9. **Private-chat sender.** Telegram omits `from_id` for user-to-bot messages, so `Message::sender` is empty there
+   (src/convert.cpp, `message_from_tl`). The bot treats the private chat peer as the sender and rejects messages with
+   no sender in groups. Found when admin commands were ignored on the VPS (log showed sender id 0).

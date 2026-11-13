@@ -167,6 +167,23 @@ void test_command_parsing() {
     CHECK(livebot::parse_command("/test login").test == livebot::TestId::Login);
 }
 
+void test_sender_resolution() {
+    cppgram::Message dm;
+    dm.chat.kind = cppgram::PeerKind::User;
+    dm.chat.id = 111;
+    CHECK(livebot::sender_id_of(dm) && *livebot::sender_id_of(dm) == 111);  // private chat, no from_id
+    cppgram::Message group;
+    group.chat.kind = cppgram::PeerKind::Channel;
+    group.chat.id = -1001;
+    CHECK(!livebot::sender_id_of(group));                                  // group without sender: rejected
+    group.sender = cppgram::PeerRef{};
+    group.sender->id = 222;
+    CHECK(livebot::sender_id_of(group) && *livebot::sender_id_of(group) == 222);
+    cppgram::Message own = dm;
+    own.outgoing = true;
+    CHECK(!livebot::sender_id_of(own));                                    // our own messages are never commands
+}
+
 void test_admin_authorization() {
     const std::vector<std::int64_t> admins{111, 222};
     CHECK(livebot::is_admin(admins, 111));
@@ -372,6 +389,7 @@ int main() {
     test_token_and_hash_shapes();
     test_proxy_profiles();
     test_command_parsing();
+    test_sender_resolution();
     test_admin_authorization();
     test_test_names_round_trip();
     test_redaction();

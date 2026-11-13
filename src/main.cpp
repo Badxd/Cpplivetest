@@ -140,7 +140,7 @@ int main() {
     });
 
     client.on_message(cppgram::filters::incoming(), [&](cppgram::Client& c, const cppgram::Message& m) {
-        const std::optional<std::int64_t> sender = m.sender ? std::optional<std::int64_t>(m.sender->id) : std::nullopt;
+        const std::optional<std::int64_t> sender = livebot::sender_id_of(m);
         const livebot::ParsedCommand cmd = livebot::parse_command(m.text);
         if (cmd.command == livebot::Command::Unknown && (m.text.empty() || m.text[0] != '/')) return;  // not a command
         if (!livebot::is_admin(cfg.admin_ids, sender)) {

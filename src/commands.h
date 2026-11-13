@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "cppgram/types.h"
 #include "test_runner.h"
 
 namespace livebot {
@@ -20,6 +21,10 @@ struct ParsedCommand {
 // Accepts "/cmd", "/cmd args", and "/cmd@botname args". Command names are case-insensitive.
 // "/test" with no argument, or an unknown test name, yields Command::Unknown with a usable raw_argument.
 ParsedCommand parse_command(const std::string& text);
+
+// Sender id for an incoming message. Telegram omits from_id in private chats, so for a user-to-bot chat the
+// chat peer is the sender. Outgoing messages and messages without a sender yield nullopt.
+std::optional<std::int64_t> sender_id_of(const cppgram::Message& m);
 
 // True only when the sender id is in the configured admin list. An absent sender is never an admin.
 bool is_admin(const std::vector<std::int64_t>& admins, std::optional<std::int64_t> sender);

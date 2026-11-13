@@ -57,6 +57,13 @@ ParsedCommand parse_command(const std::string& text) {
     return out;
 }
 
+std::optional<std::int64_t> sender_id_of(const cppgram::Message& m) {
+    if (m.outgoing) return std::nullopt;
+    if (m.sender) return m.sender->id;
+    if (m.chat.kind == cppgram::PeerKind::User) return m.chat.id;  // private chat with a user
+    return std::nullopt;
+}
+
 bool is_admin(const std::vector<std::int64_t>& admins, std::optional<std::int64_t> sender) {
     if (!sender) return false;
     return std::find(admins.begin(), admins.end(), *sender) != admins.end();
