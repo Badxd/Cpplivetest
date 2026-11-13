@@ -143,6 +143,13 @@ int main() {
         const std::optional<std::int64_t> sender = livebot::sender_id_of(m);
         const livebot::ParsedCommand cmd = livebot::parse_command(m.text);
         if (cmd.command == livebot::Command::Unknown && (m.text.empty() || m.text[0] != '/')) return;  // not a command
+        // Diagnostic: peer shape only, never the text or any secret.
+        livebot::Logger::instance().log(
+            livebot::Level::Info, "cmd",
+            "incoming command chat_kind=" + std::to_string(static_cast<int>(m.chat.kind)) +
+                " chat_id=" + std::to_string(m.chat.id) + " has_sender=" + (m.sender ? "yes" : "no") +
+                " resolved_sender=" + (sender ? std::to_string(*sender) : std::string("none")) +
+                " admin_ids_count=" + std::to_string(cfg.admin_ids.size()));
         if (!livebot::is_admin(cfg.admin_ids, sender)) {
             // Silent for non-admins: no reply, no information. Only the attempt is logged, with the id.
             livebot::Logger::instance().log(livebot::Level::Warn, "auth",
