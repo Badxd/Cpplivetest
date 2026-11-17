@@ -1,0 +1,59 @@
+cppgram_livetest
+  library version : 1.0.0
+  library tree    : 88300ea69ac694a3abdf1b0f92f58186782322ed13fce8204a3bc52f2fe47872
+  network probe   : intercepted
+  unrestricted    : not declared
+  owner approval  : not given
+
+[PASS] offline.session_roundtrip  (offline, stage=start, telegram_contact=no, 2 ms)
+    round trip equal; corrupted byte rejected by SessionCorruptError
+[PASS] offline.fake_tls_refused  (offline, stage=connect_refused_before_network, telegram_contact=no, 0 ms)
+    fake-TLS secret refused with std::invalid_argument before any network use
+[PASS] offline.failure_mtproxy_refused  (offline, stage=mtproxy_connect_refused, telegram_contact=no, 982 ms)
+    ProxyError transient after 981 ms: connect 127.0.0.1:33117: Connection refused
+[PASS] offline.failure_mtproxy_silent_timeout  (offline, stage=mtproxy_silent_peer, telegram_contact=no, 1010 ms)
+    ProxyError transient after 1010 ms: MTProto proxy sent no data within 1000 ms after the handshake: check the proxy secret, the dd prefix (padded intermediate) and the DC id, and the proxy's own connection to Telegram
+[PASS] offline.failure_mtproxy_closes_early  (offline, stage=mtproxy_peer_closes, telegram_contact=no, 0 ms)
+    ConnectionError after 0 ms: send: Broken pipe
+[PASS] offline.failure_recovery  (offline, stage=recovery_connect, telegram_contact=no, 1355 ms)
+    after ProxyError, a new connection to a healthy loopback listener succeeded
+[PASS] offline.failure_socks5_refused  (offline, stage=socks5_connect_refused, telegram_contact=no, 0 ms)
+    Socks5Error transient after 0 ms: cannot connect to SOCKS5 proxy (refused or timed out)
+[PASS] offline.failure_socks5_silent_timeout  (offline, stage=socks5_silent_peer, telegram_contact=no, 1011 ms)
+    Socks5Error transient after 1011 ms: timed out waiting for SOCKS5 proxy
+[PASS] offline.failure_socks5_wrong_version  (offline, stage=socks5_wrong_version, telegram_contact=no, 0 ms)
+    Socks5Error final after 0 ms: SOCKS5 proxy sent a wrong version
+[PASS] offline.failure_socks5_refused_reply  (offline, stage=socks5_connect_reply, telegram_contact=no, 0 ms)
+    REP 0x05 kept as reply_code 5, final (not retried): SOCKS5 connect failed: connection refused
+[PASS] environment.connect_refused  (environment, stage=tcp_connect, telegram_contact=no, 0 ms)
+    refused: connect 127.0.0.1:1: Connection refused
+[BLOCKED] environment.connect_unroutable  (environment, stage=tcp_connect, telegram_contact=no, 0 ms)
+    this network accepted a connection to 10.255.255.1 (egress interception); unroutable-address behaviour cannot be tested here
+[PASS] environment.proxy_unreachable  (environment, stage=proxy_connect, telegram_contact=no, 0 ms)
+    transient proxy error: connect 127.0.0.1:1: Connection refused
+[BLOCKED] live.handshake_intermediate_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.handshake_abridged_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.handshake_full_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.encrypted_ping_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.reconnect_restored_key_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.lifecycle_repeat_dc2  (live_no_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.login_bot_and_get_me  (live_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] live.session_restore  (live_credentials, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.proxy_dd  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.send_message  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.flood_wait_controlled  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.socks5  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.message_loop  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.

@@ -97,8 +97,10 @@ that order. `bot.session` is a credential. Keep it at mode 0600 inside `./run`, 
 
 ## 6. Owner-approved checks (optional, off by default)
 
-`owner.proxy_dd` runs only when you approve it. It needs an owner-provided dd proxy. `owner.send_message` and
-`owner.flood_wait_controlled` are NOT RUN in this build, so approving them changes nothing.
+`owner.proxy_dd`, `owner.socks5` and `owner.message_loop` run only when you approve them, and each needs its own
+endpoint or chat (see TESTS.md). `owner.message_loop` answers only the chat in `CGLT_TEST_CHAT_ID`, and only the exact
+command `/test`. `owner.flood_wait_controlled` is NOT RUN by design: the runner never triggers a rate limit. `owner.send_message`
+is superseded by the reply inside `owner.message_loop`.
 
 ```sh
 CGLT_NETWORK_UNRESTRICTED=1 CGLT_OWNER_APPROVED=1 \

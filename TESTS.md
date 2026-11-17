@@ -10,6 +10,22 @@ Every test in `cppgram_livetest`, its category, what it proves, what it needs, a
 | `offline.session_roundtrip` | A saved session loads with the same values. A corrupted byte is rejected with `SessionCorruptError`. | nothing | PASS |
 | `offline.fake_tls_refused` | A fake-TLS (`ee`) proxy secret is parsed as fake-TLS and refused before any network use. | nothing | PASS |
 
+### Offline failure injection (loopback only)
+
+These start scripted peers on `127.0.0.1` and never contact Telegram or a real proxy. They are kept separate from live
+tests. Each checks the error class, the time window, that no descriptor leaked, and that a later connection still works.
+
+| ID | Proves | Status now |
+|---|---|---|
+| `offline.failure_mtproxy_refused` | MTProxy to a closed port reports a transient `ProxyError`; no leak. | PASS (3 repeats) |
+| `offline.failure_mtproxy_silent_timeout` | A peer that never answers times out within the configured 1000 ms window (transient `ProxyError`). | PASS (3 repeats) |
+| `offline.failure_mtproxy_closes_early` | A peer that closes at once gives an error (observed as `ConnectionError`, broken pipe); no leak. | PASS (3 repeats) |
+| `offline.failure_recovery` | After a failed attempt, a new connection to a healthy listener works. | PASS |
+| `offline.failure_socks5_refused` | SOCKS5 to a closed port gives a transient `Socks5Error`. | PASS |
+| `offline.failure_socks5_silent_timeout` | A silent SOCKS5 peer gives a transient timeout after 1 s. | PASS |
+| `offline.failure_socks5_wrong_version` | A wrong-version reply is a final (not retried) `Socks5Error`. | PASS |
+| `offline.failure_socks5_refused_reply` | CONNECT answered REP 0x05 keeps reply code 5 and is final. | PASS |
+
 ## environment
 
 Local failure paths. They do not contact Telegram.
@@ -52,8 +68,10 @@ These change state or use owner infrastructure. They never run without `CGLT_OWN
 | ID | Proves | Needs | Status now |
 |---|---|---|---|
 | `owner.proxy_dd` | A dd (padded intermediate) MTProxy you run handshakes and answers an encrypted ping. | `CGLT_PROXY_HOST`, `CGLT_PROXY_PORT`, `CGLT_PROXY_SECRET` (a dd secret), `CGLT_OWNER_APPROVED=1` | PENDING USER APPROVAL |
-| `owner.send_message` | A message can be posted to a test chat. | `CGLT_OWNER_APPROVED=1`, `TG_TEST_CHAT_ID`. Not implemented in this build. | PENDING USER APPROVAL (with approval: NOT RUN) |
-| `owner.flood_wait_controlled` | A real FLOOD_WAIT is observed and handled. | `CGLT_OWNER_APPROVED=1`. No safe trigger is known. | PENDING USER APPROVAL (with approval: NOT RUN) |
+| `owner.send_message` | Not a standalone test. The single reply send is performed inside `owner.message_loop`. | See `owner.message_loop`. | NOT RUN (superseded by `owner.message_loop`) |
+| `owner.flood_wait_controlled` | Not triggered on purpose. A FLOOD_WAIT that happens during `owner.message_loop` is recorded there. | `CGLT_OWNER_APPROVED=1`. | NOT RUN (by design) |
+| `owner.socks5` | Connect through an owner-provided SOCKS5 proxy, bot login, `get_me()`, reconnect and clean disconnect. | `CGLT_OWNER_APPROVED=1`, `CGLT_SOCKS5_HOST`, `CGLT_SOCKS5_PORT`, optional `CGLT_SOCKS5_USER` and `CGLT_SOCKS5_PASS` (set together), `TG_API_ID`, `TG_API_HASH`, `TG_BOT_TOKEN` | PENDING USER APPROVAL (with approval and endpoint: runs) |
+| `owner.message_loop` | `client.run()` receives `/test` from the one authorised chat, sends one reply to that chat, and shuts down cleanly. Messages from any other chat are ignored and never answered. | `CGLT_OWNER_APPROVED=1`, `CGLT_TEST_CHAT_ID`, optional `CGLT_MESSAGE_WAIT_SECONDS` (10 to 600, default 120), `TG_API_ID`, `TG_API_HASH`, `TG_BOT_TOKEN` | PENDING USER APPROVAL (with approval: runs; NOT RUN if no `/test` arrives in time) |
 
 ## Checks in the library suite (not in this runner)
 

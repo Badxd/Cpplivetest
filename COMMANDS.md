@@ -38,7 +38,10 @@ Environment variables:
 | `TG_API_ID`, `TG_API_HASH`, `TG_BOT_TOKEN` | `live_credentials` | Account credentials. Never commit them. |
 | `CGLT_OWNER_APPROVED=1` | `owner_approval` | Owner approval. Required before any owner test runs. |
 | `CGLT_PROXY_HOST`, `CGLT_PROXY_PORT`, `CGLT_PROXY_SECRET` | `owner.proxy_dd` | The dd proxy under test. Secret is "dd" plus 32 hex characters. |
-| `TG_TEST_CHAT_ID` | `owner.send_message` | Chat for the owner test. Not implemented in this build. |
+| `CGLT_SOCKS5_HOST`, `CGLT_SOCKS5_PORT` | `owner.socks5` | Owner-provided SOCKS5 endpoint. |
+| `CGLT_SOCKS5_USER`, `CGLT_SOCKS5_PASS` | `owner.socks5` | Optional SOCKS5 credentials. Set both or neither. |
+| `CGLT_TEST_CHAT_ID` | `owner.message_loop` | The one authorised test chat id. Messages from any other chat are ignored and never answered. |
+| `CGLT_MESSAGE_WAIT_SECONDS` | `owner.message_loop` | How long to wait for `/test`, 10 to 600 seconds. Default 120. |
 
 Exit codes: `0` when no test FAILed (BLOCKED, NOT RUN and PENDING are not failures). `1` when at least one test FAILed.
 `2` for a bad command line, an unknown `--category` or `--test` value, a selection that matches no test, or a `--json`

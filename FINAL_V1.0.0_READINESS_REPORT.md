@@ -36,8 +36,8 @@ Status values: PASS, FAIL, BLOCKED, NOT RUN, PENDING USER APPROVAL.
 | T-7 | Live handshakes, encrypted ping, reconnect, lifecycle | BLOCKED | Intercepted network | RB-1 |
 | T-8 | Bot login, `get_me`, session restore | BLOCKED | No credentials, intercepted network | RB-1 |
 | T-9 | dd proxy | PENDING USER APPROVAL | | RB-5 |
-| T-10 | Message send | PENDING USER APPROVAL | Not implemented | RB-5 |
-| T-11 | Controlled FLOOD_WAIT | NOT RUN | No safe trigger | |
+| T-10 | Message loop and reply (`owner.message_loop`) | PENDING USER APPROVAL | Implemented. Not run in this workspace (intercepted network, no owner approval or endpoint). See TEST_MATRIX.md | RB-5 |
+| T-11 | Controlled FLOOD_WAIT | NOT RUN | Not provoked, by design. Offline FLOOD_WAIT tests are in the library suite | |
 | T-12 | Bot unit tests | PASS | `reports/logs/livebot-unit.log`: 136 checks, 0 failures | |
 | T-13 | Build against the exact final CppGram source | PASS | Built against the extracted `CppGram-v1.0.0-STABLE-READY.zip` source and its GCC library. | Digest matches. |
 | T-14 | Library digest reported | PASS | Runner header and JSON | |

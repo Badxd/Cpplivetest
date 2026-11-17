@@ -141,3 +141,29 @@ Gate-regression coverage (`tests/gate_tests.cpp`):
 - The allowed path with a real network (clean probe, declaration, credentials) was not run. This sandbox intercepts TCP to
   `10.255.255.1`, so the gate blocks everything here. The allowed path is covered by the gate tests only. A live result
   needs the owner's unrestricted network.
+
+## 8. Round 3: failure injection and owner tests (this package)
+
+Offline, run in the workspace (`cppgram_livetest --category offline`):
+
+| Test | Result | Detail |
+|---|---|---|
+| offline.failure_mtproxy_refused | PASS | ProxyError transient after about 1090 ms |
+| offline.failure_mtproxy_silent_timeout | PASS | ProxyError transient after about 1028 ms (1000 ms window) |
+| offline.failure_mtproxy_closes_early | PASS | ConnectionError (broken pipe) |
+| offline.failure_recovery | PASS | new connection to a healthy loopback listener succeeded |
+| offline.failure_socks5_refused | PASS | Socks5Error transient |
+| offline.failure_socks5_silent_timeout | PASS | Socks5Error transient after about 1019 ms |
+| offline.failure_socks5_wrong_version | PASS | Socks5Error final |
+| offline.failure_socks5_refused_reply | PASS | reply code 5 kept, final |
+
+Three repeat runs of the failure tests: 10 PASS, 0 FAIL each time. Outputs: `reports/logs/failure-injection/`.
+
+Default run after this change: 12 PASS, 14 BLOCKED, 0 FAIL. Owner-approval run with no network: 5 BLOCKED by the interception
+gate, and no credential was read.
+
+Owner-approval tests implemented but not run in the workspace: `owner.socks5`, `owner.message_loop`. Live results for them
+are not recorded in this package.
+
+Owner-reported live results carried forward (not reproduced here): direct connection, bot login and `get_me()`, session
+restore, reconnect: PASS. Plain MTProxy: LIVE PASS, 6439 ms. DD MTProxy: LIVE PASS, 6981 ms.

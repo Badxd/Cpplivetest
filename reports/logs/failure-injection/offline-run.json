@@ -1,0 +1,19 @@
+{
+  "library_version": "1.0.0",
+  "library_tree_sha256": "88300ea69ac694a3abdf1b0f92f58186782322ed13fce8204a3bc52f2fe47872",
+  "network_probe": "not run",
+  "unrestricted_declared": false,
+  "owner_approved": false,
+  "results": [
+    {"id": "offline.session_roundtrip", "category": "offline", "status": "PASS", "stage": "start", "error_class": "", "contacted_telegram": false, "duration_ms": 2, "detail": "round trip equal; corrupted byte rejected by SessionCorruptError"},
+    {"id": "offline.fake_tls_refused", "category": "offline", "status": "PASS", "stage": "connect_refused_before_network", "error_class": "", "contacted_telegram": false, "duration_ms": 0, "detail": "fake-TLS secret refused with std::invalid_argument before any network use"},
+    {"id": "offline.failure_mtproxy_refused", "category": "offline", "status": "PASS", "stage": "mtproxy_connect_refused", "error_class": "", "contacted_telegram": false, "duration_ms": 1088, "detail": "ProxyError transient after 1088 ms: connect 127.0.0.1:39553: Connection refused"},
+    {"id": "offline.failure_mtproxy_silent_timeout", "category": "offline", "status": "PASS", "stage": "mtproxy_silent_peer", "error_class": "", "contacted_telegram": false, "duration_ms": 1029, "detail": "ProxyError transient after 1028 ms: MTProto proxy sent no data within 1000 ms after the handshake: check the proxy secret, the dd prefix (padded intermediate) and the DC id, and the proxy's own connection to Telegram"},
+    {"id": "offline.failure_mtproxy_closes_early", "category": "offline", "status": "PASS", "stage": "mtproxy_peer_closes", "error_class": "", "contacted_telegram": false, "duration_ms": 0, "detail": "ConnectionError after 0 ms: send: Broken pipe"},
+    {"id": "offline.failure_recovery", "category": "offline", "status": "PASS", "stage": "recovery_connect", "error_class": "", "contacted_telegram": false, "duration_ms": 1314, "detail": "after ProxyError, a new connection to a healthy loopback listener succeeded"},
+    {"id": "offline.failure_socks5_refused", "category": "offline", "status": "PASS", "stage": "socks5_connect_refused", "error_class": "", "contacted_telegram": false, "duration_ms": 0, "detail": "Socks5Error transient after 0 ms: cannot connect to SOCKS5 proxy (refused or timed out)"},
+    {"id": "offline.failure_socks5_silent_timeout", "category": "offline", "status": "PASS", "stage": "socks5_silent_peer", "error_class": "", "contacted_telegram": false, "duration_ms": 1019, "detail": "Socks5Error transient after 1019 ms: timed out waiting for SOCKS5 proxy"},
+    {"id": "offline.failure_socks5_wrong_version", "category": "offline", "status": "PASS", "stage": "socks5_wrong_version", "error_class": "", "contacted_telegram": false, "duration_ms": 0, "detail": "Socks5Error final after 0 ms: SOCKS5 proxy sent a wrong version"},
+    {"id": "offline.failure_socks5_refused_reply", "category": "offline", "status": "PASS", "stage": "socks5_connect_reply", "error_class": "", "contacted_telegram": false, "duration_ms": 0, "detail": "REP 0x05 kept as reply_code 5, final (not retried): SOCKS5 connect failed: connection refused"}
+  ]
+}

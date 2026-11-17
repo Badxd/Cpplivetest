@@ -1,0 +1,27 @@
+cppgram_livetest
+  library version : 1.0.0
+  library tree    : 88300ea69ac694a3abdf1b0f92f58186782322ed13fce8204a3bc52f2fe47872
+  network probe   : not run
+  unrestricted    : not declared
+  owner approval  : not given
+
+[PASS] offline.session_roundtrip  (offline, stage=start, telegram_contact=no, 1 ms)
+    round trip equal; corrupted byte rejected by SessionCorruptError
+[PASS] offline.fake_tls_refused  (offline, stage=connect_refused_before_network, telegram_contact=no, 0 ms)
+    fake-TLS secret refused with std::invalid_argument before any network use
+[PASS] offline.failure_mtproxy_refused  (offline, stage=mtproxy_connect_refused, telegram_contact=no, 1408 ms)
+    ProxyError transient after 1407 ms: connect 127.0.0.1:45653: Connection refused
+[PASS] offline.failure_mtproxy_silent_timeout  (offline, stage=mtproxy_silent_peer, telegram_contact=no, 1011 ms)
+    ProxyError transient after 1011 ms: MTProto proxy sent no data within 1000 ms after the handshake: check the proxy secret, the dd prefix (padded intermediate) and the DC id, and the proxy's own connection to Telegram
+[PASS] offline.failure_mtproxy_closes_early  (offline, stage=mtproxy_peer_closes, telegram_contact=no, 0 ms)
+    ConnectionError after 0 ms: send: Broken pipe
+[PASS] offline.failure_recovery  (offline, stage=recovery_connect, telegram_contact=no, 1141 ms)
+    after ProxyError, a new connection to a healthy loopback listener succeeded
+[PASS] offline.failure_socks5_refused  (offline, stage=socks5_connect_refused, telegram_contact=no, 0 ms)
+    Socks5Error transient after 0 ms: cannot connect to SOCKS5 proxy (refused or timed out)
+[PASS] offline.failure_socks5_silent_timeout  (offline, stage=socks5_silent_peer, telegram_contact=no, 1001 ms)
+    Socks5Error transient after 1001 ms: timed out waiting for SOCKS5 proxy
+[PASS] offline.failure_socks5_wrong_version  (offline, stage=socks5_wrong_version, telegram_contact=no, 0 ms)
+    Socks5Error final after 0 ms: SOCKS5 proxy sent a wrong version
+[PASS] offline.failure_socks5_refused_reply  (offline, stage=socks5_connect_reply, telegram_contact=no, 0 ms)
+    REP 0x05 kept as reply_code 5, final (not retried): SOCKS5 connect failed: connection refused
