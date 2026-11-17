@@ -19,6 +19,7 @@
 #include "cppgram/client.h"
 #include "cppgram/errors.h"
 #include "commands.h"
+#include "netgate.h"
 #include "config.h"
 #include "log.h"
 #include "proxy_profile.h"
@@ -66,6 +67,21 @@ int main() {
     umask(077);
     std::signal(SIGINT, on_signal);
     std::signal(SIGTERM, on_signal);
+
+    // Network gate before anything else: no TG_* credential is read and no Telegram or proxy address is contacted
+    // unless the interception probe is clean and CGLT_NETWORK_UNRESTRICTED=1 is set. The declaration cannot override the probe.
+    {
+        livegate::GateInputs gate_in;
+        gate_in.probe = livegate::probe_network();
+        const char* declared = std::getenv("CGLT_NETWORK_UNRESTRICTED");
+        gate_in.unrestricted_declared = declared && std::string(declared) == "1";
+        const livegate::Decision d = livegate::evaluate(livegate::gate_for_category("live_credentials"), gate_in);
+        if (d.verdict != livegate::Verdict::Allow) {
+            std::fprintf(stderr, "startup refused by the network gate (probe: %s): %s\n",
+                         livegate::probe_text(gate_in.probe), d.reason.c_str());
+            return 3;
+        }
+    }
 
     livebot::Config cfg;
     std::string problem = livebot::load_config(cfg, [](const char* n) { return std::getenv(n); });

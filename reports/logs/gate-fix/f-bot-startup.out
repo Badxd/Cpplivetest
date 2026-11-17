@@ -1,0 +1,1 @@
+startup refused by the network gate (probe: intercepted): not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.

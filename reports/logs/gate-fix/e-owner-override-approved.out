@@ -1,0 +1,13 @@
+cppgram_livetest
+  library version : 1.0.0
+  library tree    : 57e313ea306c76c3f2de6cc97e6275b9e6664c1f53f3c4fb53daf409037ad58d
+  network probe   : intercepted
+  unrestricted    : declared
+  owner approval  : given
+
+[BLOCKED] owner.proxy_dd  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.send_message  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.
+[BLOCKED] owner.flood_wait_controlled  (owner_approval, stage=start, telegram_contact=no, 0 ms)
+    not valid from this network: TCP to 10.255.255.1 was accepted, so connections are intercepted. Telegram was not contacted and no credential was read. CGLT_NETWORK_UNRESTRICTED does not override this.

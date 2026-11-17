@@ -1,28 +1,12 @@
-# CppGram behaviour observed while building the bot
+# Library revision under test
 
-The library was not modified. Each item below is a fact about the library or a limit of this bot, with the
-evidence used. None of these are fixed here.
-
-1. **Synchronous calls from another thread while `run()` is active are not safe.** The header says only
-   `stop()` and `is_connected()` may be called from another thread during `run()`. The bot therefore uses the
-   update-loop client only on the run thread, and every test creates its own client on a worker thread.
-2. **Handlers must be registered before `connect()` or `run()`.** The bot does so.
-3. **`ClientOptions::session_string` is used only when no saved session exists.** The session test uses a fresh
-   `session_path` that does not exist, so the string is the only source of authorization for that client.
-4. **FloodWait.** The library sleeps and retries for FLOOD_WAIT up to `retry.max_flood_wait`, and reports each one
-   through the RPC error hook. The bot records passive observations. It does not provoke a FloodWait, so a live
-   FloodWait may not appear in any run. Live status is reported as NOT OBSERVED until one is seen.
-5. **Open issue: `plain packet has N bytes after its length field` (N = 22, 102).** The library rejects plain
-   replies with more than 15 bytes after the length field. The same rule is in the library's own audit documents
-   (MTProxy_AUDIT.md, section 6). The bot records the error text and the stage. It does not relax the rule. Root
-   cause is not determined.
-6. **Padding rule.** The published MTProto transport rule defines padding for client-to-server padded
-   intermediate frames only. The library tolerates up to 15 trailing bytes on plain replies. That is a
-   compatibility choice, not part of the rule.
-7. **`auto_reconnect` in `run()`** is not exercised by the bot's tests. The bot restarts the update loop itself
-   (up to 5 times) when `run()` throws.
-8. **MTProxy.** Only plain (16-byte) and dd (17-byte) secrets are accepted. Fake-TLS (`ee`) secrets are rejected
-   by the library, and the bot checks this before any network use.
-9. **Private-chat sender.** Telegram omits `from_id` for user-to-bot messages, so `Message::sender` is empty there
-   (src/convert.cpp, `message_from_tl`). The bot treats the private chat peer as the sender and rejects messages with
-   no sender in groups. Found when admin commands were ignored on the VPS (log showed sender id 0).
+- Library: CppGram 1.0.0 release candidate, reconciled source. The base is the attached snapshot (b3b48b3). The fixes
+  listed in `CHANGELOG.md` in the library archive, section 1.0.0 are applied on top of it.
+- Revision identifier: the runner prints the version and a tree digest in its header. The digest is a SHA256 over the
+  sorted relative paths and SHA256 values of every file in `include/` and `src/` of the CppGram tree. CMake computes it
+  when this project configures with `-DCPPGRAM_SOURCE_DIR`.
+- Digest of the tree this release was built from: `57e313ea306c76c3f2de6cc97e6275b9e6664c1f53f3c4fb53daf409037ad58d`.
+- To check a copy: configure this project against that tree and compare the `library tree` line in the runner header.
+- The digest covers the library source only. Test, doc and tool changes do not change it.
+- The runner was built against a prebuilt `libcppgram.a` from the same tree. Its own live checks use the public headers
+  only.

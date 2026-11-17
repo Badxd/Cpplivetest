@@ -1,0 +1,7 @@
+a-default-no-env connect-target       2 10.255.255.1
+b-credentials-no-override connect-target       1 10.255.255.1
+c-no-creds-override connect-target       1 10.255.255.1
+c2-credentials-override connect-target       1 10.255.255.1
+d-owner-override-no-approval connect-target       1 10.255.255.1
+e-owner-override-approved connect-target       1 10.255.255.1
+f-bot-startup connect-target       1 10.255.255.1

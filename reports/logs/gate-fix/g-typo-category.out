@@ -1,0 +1,2 @@
+unknown category (use one of offline, environment, live_no_credentials, live_credentials, owner_approval)
+usage: cppgram_livetest [--list] [--category NAME] [--test ID] [--json FILE] [--workdir DIR]

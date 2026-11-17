@@ -1,0 +1,12 @@
+a-default-no-env exit=0
+b-credentials-no-override exit=0
+c-no-creds-override exit=0
+c2-credentials-override exit=0
+d-owner-override-no-approval exit=0
+e-owner-override-approved exit=0
+f-bot-startup exit=3
+g-typo-category exit=2
+h-typo-test exit=2
+i-bad-json-path exit=2
+j-gate-tests exit=0
+k-bot-unit-tests exit=0

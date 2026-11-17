@@ -60,7 +60,7 @@ target_include_directories(livebot_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src"
 target_compile_options(livebot_core PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(livebot_core PUBLIC ${LIVEBOT_CPPGRAM_TARGET} OpenSSL::Crypto)
 
-add_executable(cppgram_live_test_bot src/main.cpp)
+add_executable(cppgram_live_test_bot src/main.cpp src/netgate.cpp)
 target_compile_options(cppgram_live_test_bot PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(cppgram_live_test_bot PRIVATE livebot_core)
 
@@ -68,3 +68,39 @@ enable_testing()
 add_executable(livebot_unit_tests tests/unit_tests.cpp)
 target_link_libraries(livebot_unit_tests PRIVATE livebot_core)
 add_test(NAME livebot_unit_tests COMMAND livebot_unit_tests)
+
+# Network-gate regression tests. Offline: no socket is opened and no credential exists.
+add_executable(livetest_gate_tests tests/gate_tests.cpp src/netgate.cpp)
+target_compile_options(livetest_gate_tests PRIVATE -Wall -Wextra -Wpedantic)
+target_include_directories(livetest_gate_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src" "${LIVEBOT_CPPGRAM_INCLUDE}")
+target_link_libraries(livetest_gate_tests PRIVATE ${LIVEBOT_CPPGRAM_TARGET} OpenSSL::Crypto)
+add_test(NAME livetest_gate_tests COMMAND livetest_gate_tests)
+
+# ---- cppgram_livetest: structured live-test runner (categories, statuses, JSON report) ----
+# Library revision: version from VERSION plus a SHA256 over every file in include/ and src/ (sorted by path).
+set(CGLT_LIB_ROOT "${CPPGRAM_SOURCE_DIR}")
+if(EXISTS "${CGLT_LIB_ROOT}/VERSION")
+    file(STRINGS "${CGLT_LIB_ROOT}/VERSION" CGLT_LIB_VERSION LIMIT_COUNT 1)
+else()
+    set(CGLT_LIB_VERSION "unknown")
+endif()
+set(CGLT_TREE_INPUT "")
+if(EXISTS "${CGLT_LIB_ROOT}/src" AND EXISTS "${CGLT_LIB_ROOT}/include")
+    file(GLOB_RECURSE CGLT_LIB_FILES RELATIVE "${CGLT_LIB_ROOT}" "${CGLT_LIB_ROOT}/include/*" "${CGLT_LIB_ROOT}/src/*")
+    list(SORT CGLT_LIB_FILES)
+    foreach(f IN LISTS CGLT_LIB_FILES)
+        file(SHA256 "${CGLT_LIB_ROOT}/${f}" h)
+        string(APPEND CGLT_TREE_INPUT "${f} ${h}\n")
+    endforeach()
+    string(SHA256 CGLT_TREE_SHA256 "${CGLT_TREE_INPUT}")
+else()
+    set(CGLT_TREE_SHA256 "unavailable (no source tree)")
+endif()
+
+add_executable(cppgram_livetest src/livetest/cli.cpp src/netgate.cpp)
+target_compile_options(cppgram_livetest PRIVATE -Wall -Wextra -Wpedantic)
+target_include_directories(cppgram_livetest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src" "${LIVEBOT_CPPGRAM_INCLUDE}")
+target_compile_definitions(cppgram_livetest PRIVATE
+    CGLT_CPPGRAM_VERSION="${CGLT_LIB_VERSION}"
+    CGLT_TREE_SHA256="${CGLT_TREE_SHA256}")
+target_link_libraries(cppgram_livetest PRIVATE ${LIVEBOT_CPPGRAM_TARGET} OpenSSL::Crypto)

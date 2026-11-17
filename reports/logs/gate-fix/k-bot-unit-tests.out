@@ -1,0 +1,5 @@
+2026-11-16T13:13:03Z INFO [test] direct PASS in 0 ms
+2026-11-16T13:13:03Z INFO [test] direct FAIL in 0 ms category=unexpected
+2026-11-16T13:13:03Z INFO [test] login PASS in 0 ms
+2026-11-16T13:13:03Z INFO [test] direct FAIL in 0 ms category=rpc
+136 checks, 0 failures

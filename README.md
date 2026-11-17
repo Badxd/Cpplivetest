@@ -1,114 +1,97 @@
-# cppgram live-test bot
+# CppGramLiveTest 1.0.0
 
-A dedicated MTProto bot that uses the CppGram C++20 library to test real Telegram behaviour from a VPS:
-bot login, `get_me`, messaging, session export and restore, reconnect, FloodWait handling, and two MTProxy
-profiles (plain 16-byte secret, and padded-intermediate "dd" secret).
+Live-test project for CppGram 1.0.0. The library is a separate archive, `CppGram-v1.0.0-STABLE-READY.zip`. It has two parts:
 
-The CppGram library is the dependency under test. This project does not modify it, and it has no copy of
-its source. Point the build at your own unmodified CppGram tree.
+1. **`cppgram_livetest`**: a categorised runner. Each test reports PASS, FAIL, BLOCKED, NOT RUN or PENDING USER
+   APPROVAL, with the stage it reached, its error class, whether it contacted Telegram, and the library revision.
+2. **`cppgram_live_test_bot`**: an MTProto bot built on CppGram. It runs the same kinds of checks from a chat, for its
+   administrators.
 
-## Status
+It is a separate project. It builds the library from the CppGram source tree (unmodified) or links a prebuilt
+`libcppgram.a`.
 
-Read `FINAL_REPORT.md` and `TEST_RESULTS.md` for what has been run and what is BLOCKED. A compiled bot is not
-a deployed bot, and a direct connection is not proof of MTProxy compatibility.
+**Status of this release: no live result has been recorded.** Every live check is BLOCKED or PENDING. See
+[`TEST_RESULTS.md`](TEST_RESULTS.md), and [`FINAL_V1.0.0_READINESS_REPORT.md`](FINAL_V1.0.0_READINESS_REPORT.md).
 
-## Layout
+## Categories
 
-```
-CMakeLists.txt                 bot build (library built from CPPGRAM_SOURCE_DIR, or linked prebuilt)
-build.sh                       build + offline unit tests
-src/                           bot source (config, logging+redaction, state, commands, test runner, tests, main)
-tests/unit_tests.cpp           offline tests (no network)
-deploy/env.example             environment template (no real values)
-deploy/cppgram-livebot.service systemd unit (hardened, restart on failure)
-deploy/install.sh              creates user, directories, installs binary and unit, enables at boot
-deploy/livebotctl.sh           check-env | start | stop | restart | status | logs | results | health
-deploy/logrotate.conf          log rotation
-docs: COMMANDS.md, TESTS.md, LIBRARY_NOTES.md, TEST_RESULTS.md, FINAL_REPORT.md
-```
+Every test is in exactly one category.
 
-## Build (Ubuntu 24.04)
+| Category | Contacts Telegram? | Needs | Runs by default? |
+|---|---|---|---|
+| `offline` | no | nothing | yes |
+| `environment` | no (local failure paths) | nothing | yes |
+| `live_no_credentials` | yes, real DC, no account | `CGLT_NETWORK_UNRESTRICTED=1` on an unrestricted network | no: BLOCKED |
+| `live_credentials` | yes, real account | network gate (clean interception probe and `CGLT_NETWORK_UNRESTRICTED=1`), then `TG_API_ID`, `TG_API_HASH`, `TG_BOT_TOKEN`. Credentials are read only after the gate allows the test. | no: BLOCKED |
+| `owner_approval` | yes, changes a chat or uses owner infrastructure | network gate, `CGLT_OWNER_APPROVED=1`, and its own inputs | no: PENDING USER APPROVAL |
 
-Build dependencies (install them yourself; this project does not install packages):
+## Statuses
 
-```sh
-sudo apt-get install -y build-essential cmake libboost-dev libcurl4-openssl-dev \
-    nlohmann-json3-dev libssl-dev zlib1g-dev libsqlite3-dev
-```
+- **PASS**: the check ran and its expected result was observed.
+- **FAIL**: the check ran and the result was wrong. The detail and error class say what happened.
+- **BLOCKED**: the check cannot give a valid result here. The reason is in the detail. This includes a missing
+  credential, a missing override, and a network that intercepts connections.
+- **NOT RUN**: the check exists but was not executed in this build.
+- **PENDING USER APPROVAL**: the check needs an owner decision or owner infrastructure. It does not run until the owner
+  sets the approval variable.
 
-Build the bot, with the library built from your unmodified CppGram tree:
+A BLOCKED result never counts as a library PASS or FAIL.
 
-```sh
-CPPGRAM_SOURCE_DIR=/path/to/cppgram ./build.sh
-```
-
-Or link an already built `libcppgram.a`:
+## Quick start
 
 ```sh
-CPPGRAM_PREBUILT_DIR=/path/to/lib CPPGRAM_PREBUILT_INCLUDE_DIR=/path/to/cppgram/include ./build.sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCPPGRAM_SOURCE_DIR=/path/to/cppgram
+cmake --build build --target cppgram_livetest livebot_unit_tests
+./build/livebot_unit_tests                  # offline unit tests of the bot code
+./build/cppgram_livetest --list             # every test, with its category
+./build/cppgram_livetest --workdir ./work   # default run: offline and environment checks only
 ```
 
-`build.sh` runs the offline unit tests with `ctest`. The binary is `build/cppgram_live_test_bot`.
+To link a prebuilt library instead of building from source, pass `-DCPPGRAM_PREBUILT_DIR=/dir/with/libcppgram.a` and
+`-DCPPGRAM_PREBUILT_INCLUDE_DIR=/path/to/cppgram/include`. Pass `-DCPPGRAM_SOURCE_DIR` as well so the runner can report
+the library tree digest.
 
-## Deploy (after the build)
+## Running the live checks (owner)
+
+Live results are valid only on a network that does not intercept connections. The runner tests this first.
 
 ```sh
-sudo ./deploy/install.sh /path/to/build/cppgram_live_test_bot
-sudo nano /etc/cppgram-livebot.env          # fill every CHANGE_ME, keep mode 600
-sudo /opt/cppgram-livebot/livebotctl.sh check-env
-sudo /opt/cppgram-livebot/livebotctl.sh start
-sudo /opt/cppgram-livebot/livebotctl.sh status
+export CGLT_NETWORK_UNRESTRICTED=1
+export TG_API_ID=...                 # your API id
+export TG_API_HASH=...               # your API hash (never commit it)
+export TG_BOT_TOKEN=...              # your bot token (never commit it)
+./build/cppgram_livetest --category live_no_credentials --json live-result.json
+./build/cppgram_livetest --category live_credentials --json live-result-account.json
 ```
 
-The service is enabled at boot. `install.sh` does not start it. It does not touch `/opt/MTProxy` or any other
-service. Layout:
+The network gate is applied to every check that contacts Telegram or a proxy (`live_no_credentials`, `live_credentials`
+and `owner_approval`). It requires a clean interception probe, and the probe must time out. If the probe finds
+interception, or cannot give a clean result, every such check is BLOCKED, Telegram is not contacted and no credential is
+read. `CGLT_NETWORK_UNRESTRICTED=1` never overrides the probe. Details: [`LIVE_TESTING.md`](LIVE_TESTING.md).
 
-- `/opt/cppgram-livebot/` binary, helper, README (root-owned)
-- `/etc/cppgram-livebot.env` secrets (root, mode 600)
-- `/var/lib/cppgram-livebot/` session files and temp files (cppgram-livebot, mode 700)
-- `/var/log/cppgram-livebot/` `livebot.log` and `results.jsonl` (mode 600, rotated by logrotate)
+Owner-approval checks need `CGLT_OWNER_APPROVED=1` and their own inputs (see [`TESTS.md`](TESTS.md)). Do not set
+`CGLT_OWNER_APPROVED` for a run you have not approved. Use `config/owner-live.env.example` as a template. It contains no
+values.
 
-## Configuration
+## Credentials and secrets
 
-See `deploy/env.example`. Variables:
+- The runner never prints API hashes, bot tokens, proxy secrets or session bytes. Reports contain test ids, stages,
+  categories, durations and redacted error text.
+- Session files are written under the work directory with mode 0600. Keep the work directory out of version control.
+- The sample environment files in `config/` contain placeholders only.
 
-| Name | Meaning |
-|---|---|
-| `TG_API_ID`, `TG_API_HASH` | Telegram API credentials |
-| `TG_BOT_TOKEN` | Token of a dedicated test bot |
-| `TG_ADMIN_IDS` | Comma-separated admin user ids. Only these get replies |
-| `TG_DC` | Data centre 1..5 for the direct connection (default 2) |
-| `TG_DATA_DIR`, `TG_LOG_DIR` | Absolute paths |
-| `TG_FLOOD_MAX_WAIT_SECONDS` | Longest FLOOD_WAIT the library will sleep through |
-| `TG_PROXY_PLAIN_HOST/PORT/SECRET` | Profile A (16-byte secret). All three or none |
-| `TG_PROXY_DD_HOST/PORT/SECRET` | Profile B (dd secret). All three or none |
-| `TG_DEBUG` | `1` prints library stage lines to stderr |
+## Files
 
-Secrets are never printed. The bot registers them for redaction at startup, and it also masks any long
-token-like run in log lines and chat replies.
+- `src/livetest/cli.cpp`: the runner.
+- `src/`, `tests/unit_tests.cpp`: the bot and its unit tests.
+- `TESTS.md`: the test catalogue and the owner-approval requirements.
+- `TEST_RESULTS.md`: the runs made for this release.
+- `LIVE_RESULT_TEMPLATE.md`: the form to record an owner run.
+- `COMMANDS.md`: commands and exit codes.
+- `SECURITY.md`: security notes for this project.
+- `diagnostics/`: evidence from the development sandbox (why its results are not valid).
+- `deploy/`: VPS deployment scripts for the bot. They were not run for this release and do not run from this project.
 
-## Operation
+## Licence
 
-- Commands are admin-only, and non-admins get no reply. See `COMMANDS.md`.
-- One test runs at a time. A second request gets "busy". The update loop keeps answering while a test runs,
-  because each test uses its own client on a worker thread.
-- Results go to chat through `/report`, and to `results.jsonl`.
-- SIGTERM (`systemctl stop`) stops the update loop and waits for a running test. systemd kills the process
-  after `TimeoutStopSec`.
-- An unexpected error in the update loop is logged and the loop restarts up to 5 times, with backoff.
-
-## Security notes
-
-- The env file is root-owned and mode 600. The service runs as an unprivileged system user with
-  `NoNewPrivileges`, `ProtectSystem=strict` and `PrivateTmp`.
-- Session data lives in `/var/lib/cppgram-livebot/tmp` (mode 700). Files are written mode 600, and they are
-  overwritten with zeros before deletion. This is best effort on journaled file systems.
-- The session string is exported only into a 0600 temporary file and read back for the restore test. It is
-  never printed, never sent through Telegram, and never placed in a report or in the log.
-- Non-admin commands produce no reply. The attempt is logged with the sender id only.
-
-## Limits
-
-See `LIBRARY_NOTES.md` for CppGram behaviour that the bot observed but did not change. The most important one
-is the unresolved `plain packet has N bytes after its length field` error (N = 22, 102). The bot records
-its message text and the stage in which it occurred, and it does not change the parser.
+This project carries no licence file of its own. Use the terms of the CppGram repository it was built from.
